@@ -47,7 +47,7 @@
 
         @keyframes pulseBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
-        /* --- MAIN NAVIGATION (FIXED HEADER) --- */
+        /* --- MAIN NAVIGATION --- */
         .main-nav {
             position: fixed;
             top: 0; left: 0; width: 100%;
@@ -56,7 +56,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 1.5rem;
-            z-index: 5000; /* Highest z-index to ensure it's always clickable */
+            z-index: 5000;
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--glass-border);
@@ -73,12 +73,7 @@
             z-index: 5001;
         }
 
-        /* Desktop Links */
-        .desktop-nav {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
+        .desktop-nav { display: flex; gap: 2rem; align-items: center; }
 
         .nav-link {
             color: var(--text-muted);
@@ -90,15 +85,12 @@
             position: relative;
         }
 
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary);
-        }
+        .nav-link:hover, .nav-link.active { color: var(--primary); }
 
         .nav-link.active::after {
             content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary);
         }
 
-        /* Hamburger Button (Visible only on Mobile) */
         .hamburger {
             display: none;
             background: none;
@@ -110,9 +102,9 @@
             padding: 10px;
         }
 
-        /* --- MOBILE MENU OVERLAY (SEPARATE LAYER) --- */
+        /* --- MOBILE MENU OVERLAY --- */
         .mobile-menu {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             top: var(--nav-height);
             left: 0;
@@ -122,9 +114,9 @@
             flex-direction: column;
             align-items: center;
             padding-top: 3rem;
-            z-index: 4999; /* Just below the header */
+            z-index: 4999;
             border-top: 1px solid var(--glass-border);
-            overflow-y: auto; /* Allow scrolling if screen is short */
+            overflow-y: auto;
         }
 
         .mobile-link {
@@ -147,7 +139,7 @@
         @media (max-width: 767px) {
             .desktop-nav { display: none; }
             .hamburger { display: block; }
-            .mobile-menu { display: none; } /* Logic handled by JS */
+            .mobile-menu { display: none; }
         }
         
         @media (min-width: 768px) {
@@ -288,22 +280,20 @@
 
     <div class="bg-mesh"></div>
 
-    <!-- Main Navigation Bar (Always Fixed) -->
+    <!-- Main Navigation Bar -->
     <nav class="main-nav">
         <div class="logo" onclick="switchTab('home')">BRIDGE</div>
         
-        <!-- Desktop Links -->
         <div class="desktop-nav">
             <a class="nav-link active" onclick="switchTab('home')">Global Weather</a>
             <a class="nav-link" onclick="switchTab('flights')">Changi Flights</a>
             <a class="nav-link" onclick="switchTab('vault')">Staff Vault</a>
         </div>
 
-        <!-- Mobile Hamburger Button -->
         <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
     </nav>
 
-    <!-- Mobile Menu Overlay (Separate from Nav) -->
+    <!-- Mobile Menu Overlay -->
     <div id="mobile-menu" class="mobile-menu">
         <a class="mobile-link" onclick="handleMobileClick('home')">Global Weather</a>
         <a class="mobile-link" onclick="handleMobileClick('flights')">Changi Flights</a>
@@ -411,17 +401,14 @@
 
         // --- NAVIGATION LOGIC ---
         function switchTab(id) {
-            // 1. Update Section Visibility
             document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
             document.getElementById(id).classList.add('active-section');
             
-            // 2. Update Nav Highlight (Desktop)
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             const links = ['home', 'flights', 'vault'];
             const idx = links.indexOf(id);
             if(idx >= 0) document.querySelectorAll('.nav-link')[idx].classList.add('active');
 
-            // 3. Close Mobile Menu if open
             const menu = document.getElementById('mobile-menu');
             if (window.getComputedStyle(menu).display === 'flex') {
                 menu.style.display = 'none';
@@ -430,7 +417,6 @@
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            // Direct style toggle is reliable
             if (menu.style.display === 'flex') {
                 menu.style.display = 'none';
             } else {
@@ -440,7 +426,6 @@
 
         function handleMobileClick(id) {
             switchTab(id);
-            // Explicitly hide menu for good measure
             document.getElementById('mobile-menu').style.display = 'none';
         }
 
@@ -627,6 +612,7 @@
             if(u === 'staff' && p === 'bridge') {
                 document.getElementById('vault-login').style.display = 'none';
                 document.getElementById('vault-content').style.display = 'block';
+                renderTasks(); // FIX: Render tasks immediately upon login
                 showToast("Identity Verified. Access Granted.");
             } else {
                 showToast("Access Denied. Invalid Credentials.");
