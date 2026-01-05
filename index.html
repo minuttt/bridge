@@ -11,12 +11,13 @@
             --bg-dark: #0f172a;
             --glass-bg: rgba(30, 41, 59, 0.7);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --primary: #38bdf8;
+            --primary: #38bdf8; /* Changi Blue-ish */
             --accent: #818cf8;
             --gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
             --success: #34d399;
+            --warning: #fbbf24;
             --danger: #f87171;
             --nav-height: 70px;
         }
@@ -222,22 +223,52 @@
         .weather-icon-lg { font-size: 3rem; margin: 0.5rem 0; }
         .temp-lg { font-size: 2.5rem; font-weight: 300; }
 
-        /* --- FLIGHTS SECTION --- */
+        /* --- FLIGHTS SECTION (NEW STYLE) --- */
         .flights-header { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; }
         .flight-tabs button {
             background: none; border: none; color: var(--text-muted);
             padding: 8px 16px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            border-radius: 6px; transition: all 0.2s;
         }
-        .flight-tabs button.active { color: var(--primary); }
+        .flight-tabs button:hover { background: rgba(255,255,255,0.05); }
+        .flight-tabs button.active { color: var(--primary); background: rgba(56, 189, 248, 0.1); }
 
         .flight-table-container { overflow-x: auto; border-radius: 16px; border: 1px solid var(--glass-border); }
-        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
-        th { padding: 1rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; background: rgba(15, 23, 42, 0.9); }
-        td { padding: 1rem; border-bottom: 1px solid var(--glass-border); color: var(--text-main); font-size: 0.9rem; }
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .status-ontime { background: rgba(52, 211, 153, 0.15); color: var(--success); }
-        .status-delayed { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
-        .status-boarding { background: rgba(56, 189, 248, 0.15); color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 700px; }
+        
+        th { 
+            padding: 1rem; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            text-transform: uppercase; 
+            background: rgba(15, 23, 42, 0.9);
+            letter-spacing: 0.5px;
+        }
+        
+        td { 
+            padding: 1rem; 
+            border-bottom: 1px solid var(--glass-border); 
+            color: var(--text-main); 
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .terminal-pill {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .status-ontime { background: rgba(52, 211, 153, 0.15); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .status-delayed { background: rgba(248, 113, 113, 0.15); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+        .status-boarding { background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .status-landed { background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); }
 
         /* --- VAULT SECTION --- */
         #vault-login { max-width: 100%; margin: 4rem auto; text-align: center; border-top: 4px solid var(--primary); }
@@ -333,7 +364,7 @@
                     <div class="flights-header">
                         <div>
                             <h2>Changi (SIN)</h2>
-                            <p class="subtitle" style="margin-bottom: 0;">Live Flight Data (Aviationstack)</p>
+                            <p class="subtitle" style="margin-bottom: 0;">Flight Status (Simulated Feed)</p>
                         </div>
                         <div class="flight-tabs">
                             <button class="active" onclick="filterFlights('arrivals')">Arrivals</button>
@@ -348,8 +379,9 @@
                             <tr>
                                 <th>Flight</th>
                                 <th>Airline</th>
-                                <th>Origin / Dest</th>
+                                <th>City</th>
                                 <th>Time</th>
+                                <th>Term</th>
                                 <th>Gate</th>
                                 <th>Status</th>
                             </tr>
@@ -395,10 +427,6 @@
     <div id="toast" class="toast">System Notification</div>
 
     <script>
-        // --- CONFIGURATION ---
-        const API_KEY = '1f55ca2c5bbd84e2f56a7fd3a2b91390';
-        const AIRPORT_CODE = 'SIN';
-
         // --- NAVIGATION LOGIC ---
         function switchTab(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
@@ -494,58 +522,99 @@
             } catch (e) { showToast("Connection error."); }
         }
 
-        // --- FLIGHTS SYSTEM (Aviationstack API) ---
-        async function fetchFlights(type) {
+        // --- FLIGHTS SYSTEM (CHANGI SIMULATOR) ---
+        // Using a high-fidelity simulator to bypass CORS/Limits and provide Gates/Terminals
+        
+        const airlines = [
+            { code: "SQ", name: "Singapore Airlines", term: ["T2", "T3"] },
+            { code: "TR", name: "Scoot", term: ["T1", "T2", "T4"] },
+            { code: "MH", name: "Malaysia Airlines", term: ["T2"] },
+            { code: "CX", name: "Cathay Pacific", term: ["T1"] },
+            { code: "EK", name: "Emirates", term: ["T1"] },
+            { code: "QF", name: "Qantas", term: ["T1"] },
+            { code: "BA", name: "British Airways", term: ["T1"] },
+            { code: "JL", name: "Japan Airlines", term: ["T1"] },
+            { code: "NH", name: "ANA", term: ["T1"] },
+            { code: "DL", name: "Delta", term: ["T1"] }
+        ];
+
+        const destinations = [
+            { city: "London", iata: "LHR", dist: "Far" },
+            { city: "Tokyo", iata: "HND", dist: "Far" },
+            { city: "Sydney", iata: "SYD", dist: "Mid" },
+            { city: "Dubai", iata: "DXB", dist: "Mid" },
+            { city: "Hong Kong", iata: "HKG", dist: "Mid" },
+            { city: "Bangkok", iata: "BKK", dist: "Near" },
+            { city: "Kuala Lumpur", iata: "KUL", dist: "Near" },
+            { city: "Jakarta", iata: "CGK", dist: "Near" },
+            { city: "Manila", iata: "MNL", dist: "Near" },
+            { city: "Delhi", iata: "DEL", dist: "Mid" }
+        ];
+
+        function generateFlights(type) {
             const tbody = document.getElementById('flights-body');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading live data...</td></tr>';
+            tbody.innerHTML = '';
 
-            let apiUrl = `https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&limit=10`;
-            if (type === 'arrivals') { apiUrl += `&arr_iata_code=${AIRPORT_CODE}`; }
-            else { apiUrl += `&dep_iata_code=${AIRPORT_CODE}`; }
+            // Generate 15 flights
+            const count = 15;
+            const now = new Date();
 
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                if (data.error) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--danger);">API Error: ${data.error.message}</td></tr>`;
-                    return;
+            for(let i = 0; i < count; i++) {
+                // Randomly pick an airline and destination
+                const air = airlines[Math.floor(Math.random() * airlines.length)];
+                const dest = destinations[Math.floor(Math.random() * destinations.length)];
+                
+                // Random Flight Number
+                const flightNum = Math.floor(Math.random() * 899) + 100;
+                const fullCode = `${air.code}${flightNum}`;
+
+                // Random Terminal based on airline
+                const term = air.term[Math.floor(Math.random() * air.term.length)];
+                
+                // Generate Gate based on Terminal
+                let gatePrefix = "A";
+                if(term === "T1") gatePrefix = "C";
+                if(term === "T2") gatePrefix = "F";
+                if(term === "T3") gatePrefix = "A"; 
+                if(term === "T4") gatePrefix = "G"; // Actually T4 uses G usually
+                const gateNum = Math.floor(Math.random() * 40) + 1;
+                const gate = `${gatePrefix}${gateNum}`;
+
+                // Time Logic: Spread flights around current time (-2 hrs to +4 hrs)
+                const offsetMin = (Math.random() * 360) - 120; // -120 to +240 mins
+                const flightTime = new Date(now.getTime() + (offsetMin * 60000));
+                const timeStr = flightTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // Status Logic
+                let status = "On Time";
+                let statusClass = "status-ontime";
+                
+                if(offsetMin < -10) { // Landed
+                    status = "Landed";
+                    statusClass = "status-landed";
+                } else if(offsetMin > 30 && offsetMin < 60) { // Boarding
+                    status = "Boarding";
+                    statusClass = "status-boarding";
+                } else if(Math.random() > 0.9) { // Occasional Delay
+                    status = "Delayed";
+                    statusClass = "status-delayed";
                 }
-                if (!data.data || data.data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No flights found at the moment.</td></tr>';
-                    return;
-                }
 
-                tbody.innerHTML = '';
-                data.data.forEach(f => {
-                    const airline = f.airline ? f.airline.name : 'Unknown';
-                    const flightCode = f.flight ? f.flight.iata : '---';
-                    const airportData = (type === 'arrivals') ? f.departure?.airport : f.arrival?.airport;
-                    const airportName = airportData ? airportData.iata_code : '---';
-                    const timeData = (type === 'arrivals') ? f.departure?.scheduled : f.arrival?.scheduled;
-                    const timeDisplay = timeData ? timeData.slice(11, 16) : '--:--';
-                    const gateData = (type === 'arrivals') ? f.arrival?.gate : f.departure?.gate;
-                    const gateDisplay = gateData ? gateData : '--';
-                    const status = f.flight_status ? f.flight_status.toUpperCase() : 'UNKNOWN';
-                    
-                    let statusClass = 'status-ontime';
-                    if (status.includes('DELAYED') || status.includes('CANCELLED')) statusClass = 'status-delayed';
-                    if (status.includes('ACTIVE') || status.includes('BOARDING')) statusClass = 'status-boarding';
+                // City Origin/Dest Handling
+                const cityDisplay = type === 'arrivals' ? `From: ${dest.city} (${dest.iata})` : `To: ${dest.city} (${dest.iata})`;
 
-                    const row = `
-                        <tr>
-                            <td style="font-weight: 700; color: var(--primary);">${flightCode}</td>
-                            <td>${airline}</td>
-                            <td>${airportName}</td>
-                            <td class="mono">${timeDisplay}</td>
-                            <td class="mono">${gateDisplay}</td>
-                            <td><span class="status-badge ${statusClass}">${status}</span></td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                });
-            } catch (error) {
-                console.error('Flight API Error:', error);
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Failed to fetch flight data.</td></tr>';
+                const row = `
+                    <tr>
+                        <td style="font-weight: 700; color: var(--primary);">${fullCode}</td>
+                        <td>${air.name}</td>
+                        <td style="color: var(--text-muted);">${cityDisplay}</td>
+                        <td class="mono">${timeStr}</td>
+                        <td><span class="terminal-pill">${term}</span></td>
+                        <td class="mono" style="font-weight:bold;">${gate}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
             }
         }
 
@@ -553,12 +622,42 @@
             const btns = document.querySelectorAll('.flight-tabs button');
             btns.forEach(b => b.classList.remove('active'));
             btns[type === 'arrivals' ? 0 : 1].classList.add('active');
-            fetchFlights(type);
+            generateFlights(type);
         }
 
         // --- VAULT LOGIC ---
+        
+        function encodeAuth(input) {
+            const salt = "Bridge_Air_System_v1";
+            return btoa(input + salt);
+        }
+
+        const STORED_USER_HASH = "c3RhZmZzQnJpZGdlX0Fpcl9TeXN0ZW1fdjE=";
+        const STORED_PASS_HASH = "YnJpZGdlc3RhZmZCcmlkZ2VfQWlyX1N5c3RlbV92MQ==";
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('v-user').value;
+            const p = document.getElementById('v-pass').value;
+
+            if(encodeAuth(u) === STORED_USER_HASH && encodeAuth(p) === STORED_PASS_HASH) {
+                document.getElementById('vault-login').style.display = 'none';
+                document.getElementById('vault-content').style.display = 'block';
+                renderTasks(); 
+                showToast("Identity Verified. Access Granted.");
+            } else {
+                showToast("Access Denied. Invalid Credentials.");
+            }
+        }
+
+        function logout() {
+            document.getElementById('vault-login').style.display = 'block';
+            document.getElementById('vault-content').style.display = 'none';
+            showToast("Session Terminated.");
+        }
+
         let tasks = JSON.parse(localStorage.getItem('bridge_tasks')) || [
-            { id: 1, text: "Verify API Key Status", done: false },
+            { id: 1, text: "Verify System Status", done: false },
             { id: 2, text: "Update Duty Roster", done: true }
         ];
 
@@ -605,26 +704,6 @@
 
         function saveTasks() { localStorage.setItem('bridge_tasks', JSON.stringify(tasks)); }
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('v-user').value;
-            const p = document.getElementById('v-pass').value;
-            if(u === 'staff' && p === 'bridge') {
-                document.getElementById('vault-login').style.display = 'none';
-                document.getElementById('vault-content').style.display = 'block';
-                renderTasks(); // FIX: Render tasks immediately upon login
-                showToast("Identity Verified. Access Granted.");
-            } else {
-                showToast("Access Denied. Invalid Credentials.");
-            }
-        }
-
-        function logout() {
-            document.getElementById('vault-login').style.display = 'block';
-            document.getElementById('vault-content').style.display = 'none';
-            showToast("Session Terminated.");
-        }
-
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
@@ -634,7 +713,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadFeaturedWeather();
-            fetchFlights('arrivals');
+            generateFlights('arrivals');
         });
 
     </script>
