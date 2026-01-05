@@ -27,6 +27,7 @@
             padding: 0;
             scrollbar-width: thin;
             scrollbar-color: var(--accent) var(--bg-dark);
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -58,61 +59,73 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.2rem 3rem;
+            padding: 1rem 1.5rem; /* Adjusted for mobile */
             z-index: 1000;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
             transition: all 0.3s ease;
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -1px;
             cursor: pointer;
+            white-space: nowrap;
         }
 
+        /* Desktop Links */
         .nav-links {
             display: flex;
-            gap: 2.5rem;
+            gap: 2rem;
         }
 
         .nav-item {
             color: var(--text-muted);
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s, transform 0.2s;
+            transition: color 0.3s;
             position: relative;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .nav-item:hover, .nav-item.active {
             color: var(--primary);
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
         }
 
         .nav-item.active::after {
             content: '';
             position: absolute;
-            bottom: -8px; left: 0; width: 100%;
+            bottom: -5px; left: 0; width: 100%;
             height: 2px;
             background: var(--primary);
-            box-shadow: 0 0 8px var(--primary);
+        }
+
+        /* Mobile Hamburger */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
         }
 
         /* --- LAYOUT & SECTIONS --- */
         main {
-            padding-top: 80px;
+            padding-top: 70px; /* Space for fixed nav */
             min-height: 100vh;
         }
 
         section {
             display: none;
-            padding: 3rem;
+            padding: 2rem 1.5rem; /* Reduced padding for mobile */
             max-width: 1400px;
             margin: 0 auto;
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -128,7 +141,7 @@
         }
 
         h2 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 0.5rem;
             background: linear-gradient(to right, #fff, #94a3b8);
             -webkit-background-clip: text;
@@ -137,8 +150,8 @@
 
         p.subtitle {
             color: var(--text-muted);
-            margin-bottom: 3rem;
-            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-size: 1rem;
         }
 
         /* --- GLASS COMPONENT --- */
@@ -146,7 +159,7 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            padding: 2rem;
+            padding: 1.5rem; /* Slightly less padding */
             backdrop-filter: blur(12px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -161,12 +174,12 @@
         /* --- HOME / WEATHER SECTION --- */
         .hero-search {
             text-align: center;
-            margin-bottom: 4rem;
-            padding: 4rem 1rem;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
         }
 
         .hero-title {
-            font-size: 4rem;
+            font-size: 2.5rem; /* Mobile font size */
             line-height: 1.1;
             margin-bottom: 1.5rem;
             background: linear-gradient(to right, #38bdf8, #e879f9);
@@ -178,34 +191,32 @@
             position: relative;
             max-width: 600px;
             margin: 0 auto;
+            width: 100%;
         }
 
         .search-input {
             width: 100%;
-            padding: 1.2rem 1.5rem;
-            border-radius: 50px;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
             border: 1px solid var(--glass-border);
             background: rgba(15, 23, 42, 0.8);
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-family: inherit;
             outline: none;
             transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            margin-bottom: 10px; /* Space for button on mobile */
         }
 
         .search-input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
         }
 
         .search-btn {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            bottom: 5px;
-            padding: 0 2rem;
-            border-radius: 40px;
+            width: 100%; /* Full width on mobile */
+            padding: 1rem;
+            border-radius: 12px;
             border: none;
             background: var(--gradient);
             color: white;
@@ -215,14 +226,15 @@
         }
 
         .search-btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
+            opacity: 0.9;
         }
 
         /* Featured Weather Grid */
         .destinations-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            grid-template-columns: 1fr; /* 1 column on mobile */
+            gap: 1.5rem;
             margin-top: 2rem;
         }
 
@@ -239,36 +251,17 @@
             background: var(--gradient);
         }
 
-        .city-name {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-        }
-
-        .weather-icon-lg {
-            font-size: 3.5rem;
-            margin: 1rem 0;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
-        }
-
-        .temp-lg {
-            font-size: 3rem;
-            font-weight: 300;
-        }
-
-        .weather-detail {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 1rem;
-        }
+        .city-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .weather-icon-lg { font-size: 3rem; margin: 0.5rem 0; }
+        .temp-lg { font-size: 2.5rem; font-weight: 300; }
+        .weather-detail { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
 
         /* --- FLIGHTS SECTION --- */
         .flights-header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 2rem;
+            flex-direction: column; /* Stack on mobile */
+            gap: 1rem;
+            margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--glass-border);
             padding-bottom: 1rem;
         }
@@ -277,7 +270,7 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            padding: 10px 20px;
+            padding: 8px 16px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -287,81 +280,71 @@
 
         .flight-tabs button.active {
             color: var(--primary);
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
         }
 
         .flight-table-container {
-            overflow-x: auto;
+            overflow-x: auto; /* Allow horizontal scroll for table */
             border-radius: 16px;
+            border: 1px solid var(--glass-border);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+            min-width: 600px; /* Ensure table doesn't squish */
         }
 
         thead {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.9);
         }
 
         th {
-            padding: 1.2rem;
+            padding: 1rem;
             color: var(--text-muted);
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         td {
-            padding: 1.2rem;
+            padding: 1rem;
             border-bottom: 1px solid var(--glass-border);
             color: var(--text-main);
+            font-size: 0.9rem;
         }
-
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.03); }
 
         .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
-        .status-ontime { background: rgba(52, 211, 153, 0.15); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
-        .status-delayed { background: rgba(248, 113, 113, 0.15); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
-        .status-boarding { background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); }
+        .status-ontime { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+        .status-delayed { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
+        .status-boarding { background: rgba(56, 189, 248, 0.15); color: var(--primary); }
 
         /* --- VAULT SECTION --- */
         #vault-login {
-            max-width: 450px;
-            margin: 8rem auto;
+            max-width: 100%;
+            margin: 4rem auto;
             text-align: center;
             border-top: 4px solid var(--primary);
         }
 
-        #vault-content {
-            display: none;
-        }
-
-        .vault-grid {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-        }
+        #vault-content { display: none; }
 
         .task-input-area {
             display: flex;
+            flex-direction: column; /* Stack on mobile */
             gap: 10px;
             margin-bottom: 2rem;
         }
 
         .task-input-area input {
-            flex: 1;
+            width: 100%;
             background: rgba(0,0,0,0.3);
             border: 1px solid var(--glass-border);
             padding: 1rem;
@@ -373,23 +356,14 @@
         .btn-primary {
             background: var(--gradient);
             border: none;
-            padding: 1rem 2rem;
+            padding: 1rem;
             border-radius: 8px;
             color: white;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
-            transition: all 0.3s;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
-        }
-
-        .task-list {
-            list-style: none;
-        }
+        .task-list { list-style: none; }
 
         .task-item {
             background: rgba(255,255,255,0.03);
@@ -399,19 +373,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .task-item:hover {
-            border-color: var(--glass-border);
-            background: rgba(255,255,255,0.05);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .task-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            flex: 1;
         }
 
         .checkbox {
@@ -428,26 +398,51 @@
 
         /* Toast */
         .toast {
-            position: fixed; bottom: 30px; right: 30px;
+            position: fixed; bottom: 20px; right: 20px; left: 20px; /* Full width on mobile */
             background: var(--bg-dark);
             border: 1px solid var(--primary);
             color: var(--primary);
-            padding: 1rem 2rem;
+            padding: 1rem;
             border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s;
             z-index: 2000;
             font-weight: 600;
+            text-align: center;
         }
         .toast.show { transform: translateY(0); opacity: 1; }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-title { font-size: 2.5rem; }
-            .nav-links { display: none; } /* Simplified for mobile demo */
-            .vault-grid { grid-template-columns: 1fr; }
+        /* --- RESPONSIVE QUERIES --- */
+        @media (min-width: 768px) {
+            nav { padding: 1.2rem 3rem; }
+            section { padding: 3rem; }
+            .hero-title { font-size: 4rem; }
+            
+            /* Desktop Nav */
+            .hamburger { display: none; }
+            .nav-links { display: flex; }
+            
+            /* Desktop Search */
+            .search-wrapper { max-width: 600px; }
+            .search-input { margin-bottom: 0; }
+            .search-btn {
+                position: absolute;
+                right: 5px; top: 5px; bottom: 5px;
+                width: auto;
+                padding: 0 2rem;
+                border-radius: 40px;
+            }
+            
+            /* Desktop Grid */
+            .destinations-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+            
+            /* Desktop Tables */
+            .flights-header { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+            
+            /* Desktop Vault */
+            .task-input-area { flex-direction: row; }
+            .task-item { flex-wrap: nowrap; }
         }
     </style>
 </head>
@@ -458,10 +453,14 @@
     <!-- Navigation -->
     <nav>
         <div class="logo" onclick="switchTab('home')">BRIDGE</div>
-        <div class="nav-links">
-            <a class="nav-item active" onclick="switchTab('home')">Global Weather</a>
-            <a class="nav-item" onclick="switchTab('flights')">Changi Flights</a>
-            <a class="nav-item" onclick="switchTab('vault')">Staff Vault</a>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+        
+        <div class="nav-links" id="nav-links">
+            <a class="nav-item active" onclick="switchTab('home'); toggleMobileMenu()">Global Weather</a>
+            <a class="nav-item" onclick="switchTab('flights'); toggleMobileMenu()">Changi Flights</a>
+            <a class="nav-item" onclick="switchTab('vault'); toggleMobileMenu()">Staff Vault</a>
         </div>
     </nav>
 
@@ -477,7 +476,7 @@
                     <button class="search-btn" onclick="performSearch()">TRACK</button>
                 </div>
 
-                <!-- Search Result (Hidden by default) -->
+                <!-- Search Result -->
                 <div id="search-result" class="glass-panel" style="max-width: 400px; margin: 2rem auto; display: none;">
                     <h3 id="res-city" style="margin-bottom: 0.5rem;">City</h3>
                     <div class="weather-icon-lg" id="res-icon">☀️</div>
@@ -487,12 +486,9 @@
             </div>
 
             <div style="margin-top: 4rem;">
-                <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary); padding-left: 1rem;">Featured Destinations</h2>
+                <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary); padding-left: 1rem;">Featured Destinations</h2>
                 <div class="destinations-grid" id="featured-grid">
                     <!-- Populated by JS -->
-                    <div class="glass-panel weather-card">
-                        <div class="city-name">Loading...</div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -500,11 +496,11 @@
         <!-- FLIGHTS SECTION -->
         <section id="flights">
             <div class="glass-panel" style="padding: 0; overflow: hidden;">
-                <div style="padding: 2rem;">
+                <div style="padding: 1.5rem;">
                     <div class="flights-header">
                         <div>
-                            <h2>Singapore Changi (SIN)</h2>
-                            <p class="subtitle" style="margin-bottom: 0;">Live Flight Data Stream</p>
+                            <h2>Changi (SIN)</h2>
+                            <p class="subtitle" style="margin-bottom: 0;">Live Flight Data</p>
                         </div>
                         <div class="flight-tabs">
                             <button class="active" onclick="filterFlights('arrivals')">Arrivals</button>
@@ -550,7 +546,7 @@
             <div id="vault-content">
                 <div class="glass-panel">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
-                        <h2 style="margin: 0;">The Vault</h2>
+                        <h2 style="margin: 0; font-size: 1.5rem;">The Vault</h2>
                         <button onclick="logout()" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Logout</button>
                     </div>
 
@@ -578,9 +574,31 @@
             
             document.getElementById(id).classList.add('active-section');
             
-            // Highlight nav (Simplified logic for demo)
             const navs = ['home', 'flights', 'vault'];
-            document.querySelectorAll('.nav-item')[navs.indexOf(id)].classList.add('active');
+            const navIndex = navs.indexOf(id);
+            if(navIndex >= 0) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const links = document.getElementById('nav-links');
+            // Simple check if flex or none via class or style
+            if (links.style.display === 'flex') {
+                links.style.display = ''; // Reverts to CSS default (none on mobile)
+                if(window.innerWidth >= 768) links.style.display = 'flex'; // Ensure visible on resize
+            } else {
+                links.style.display = 'flex';
+                links.style.flexDirection = 'column';
+                links.style.position = 'absolute';
+                links.style.top = '60px';
+                links.style.left = '0';
+                links.style.width = '100%';
+                links.style.background = '#0f172a';
+                links.style.padding = '1rem';
+                links.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            }
         }
 
         // --- WEATHER SYSTEM (Open-Meteo) ---
@@ -605,7 +623,7 @@
 
         async function loadFeaturedWeather() {
             const grid = document.getElementById('featured-grid');
-            grid.innerHTML = ''; // Clear loading
+            grid.innerHTML = '';
 
             for (const city of featuredCities) {
                 try {
@@ -625,9 +643,7 @@
                         <div class="weather-detail">Wind: ${data.current_weather.windspeed} km/h</div>
                     `;
                     grid.appendChild(card);
-                } catch (e) {
-                    console.error("Error loading weather for " + city.name);
-                }
+                } catch (e) { console.error(e); }
             }
         }
 
@@ -636,7 +652,6 @@
             if(!query) return showToast("Please enter a city name.");
 
             try {
-                // 1. Get Coordinates
                 const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=1`;
                 const geoRes = await fetch(geoUrl);
                 const geoData = await geoRes.json();
@@ -648,12 +663,10 @@
 
                 const { latitude, longitude, name, country } = geoData.results[0];
 
-                // 2. Get Weather
                 const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`;
                 const weatherRes = await fetch(weatherUrl);
                 const weatherData = await weatherRes.json();
 
-                // 3. Display
                 const resultBox = document.getElementById('search-result');
                 resultBox.style.display = 'block';
                 
@@ -708,7 +721,6 @@
         }
 
         function filterFlights(type) {
-            // Update buttons
             const btns = document.querySelectorAll('.flight-tabs button');
             btns.forEach(b => b.classList.remove('active'));
             btns[type === 'arrivals' ? 0 : 1].classList.add('active');
@@ -793,10 +805,24 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // --- INIT ---
         window.addEventListener('DOMContentLoaded', () => {
             loadFeaturedWeather();
             renderFlights('arrivals');
+        });
+
+        // Handle window resize to reset nav styles
+        window.addEventListener('resize', () => {
+            const links = document.getElementById('nav-links');
+            if(window.innerWidth >= 768) {
+                links.style.display = 'flex';
+                links.style.flexDirection = 'row';
+                links.style.position = 'static';
+                links.style.background = 'transparent';
+                links.style.padding = '0';
+                links.style.borderBottom = 'none';
+            } else {
+                links.style.display = 'none'; // Hide on mobile resize unless toggled
+            }
         });
 
     </script>
