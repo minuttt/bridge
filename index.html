@@ -6,7 +6,7 @@
     <title>Bridge | Premium Flight Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CORE VARIABLES & RESET --- */
+        /* --- CORE VARIABLES --- */
         :root {
             --bg-dark: #0f172a;
             --glass-bg: rgba(30, 41, 59, 0.7);
@@ -18,14 +18,13 @@
             --text-muted: #94a3b8;
             --success: #34d399;
             --danger: #f87171;
+            --nav-height: 70px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent) var(--bg-dark);
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -36,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* --- ANIMATED BACKGROUND --- */
+        /* --- BACKGROUND --- */
         .bg-mesh {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -46,24 +45,21 @@
             animation: pulseBg 10s ease-in-out infinite alternate;
         }
 
-        @keyframes pulseBg {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
+        @keyframes pulseBg { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
-        /* --- NAVIGATION --- */
-        nav {
+        /* --- MAIN NAVIGATION (FIXED HEADER) --- */
+        .main-nav {
             position: fixed;
-            top: 0; width: 100%;
+            top: 0; left: 0; width: 100%;
+            height: var(--nav-height);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 1.5rem;
-            z-index: 2000;
+            padding: 0 1.5rem;
+            z-index: 5000; /* Highest z-index to ensure it's always clickable */
             background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
         }
 
         .logo {
@@ -72,39 +68,37 @@
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
             cursor: pointer;
-            z-index: 2001;
+            user-select: none;
+            z-index: 5001;
         }
 
-        .nav-links {
+        /* Desktop Links */
+        .desktop-nav {
             display: flex;
             gap: 2rem;
             align-items: center;
         }
 
-        .nav-item {
+        .nav-link {
             color: var(--text-muted);
             text-decoration: none;
             font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
             transition: color 0.3s;
             position: relative;
-            cursor: pointer;
-            white-space: nowrap;
         }
 
-        .nav-item:hover, .nav-item.active {
+        .nav-link:hover, .nav-link.active {
             color: var(--primary);
         }
 
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: -5px; left: 0; width: 100%;
-            height: 2px;
-            background: var(--primary);
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary);
         }
 
+        /* Hamburger Button (Visible only on Mobile) */
         .hamburger {
             display: none;
             background: none;
@@ -112,54 +106,74 @@
             color: var(--text-main);
             font-size: 1.8rem;
             cursor: pointer;
-            z-index: 2001;
-            padding: 0.5rem;
+            z-index: 5001;
+            padding: 10px;
         }
 
-        /* --- MOBILE MENU LOGIC --- */
+        /* --- MOBILE MENU OVERLAY (SEPARATE LAYER) --- */
+        .mobile-menu {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--nav-height));
+            background: var(--bg-dark);
+            flex-direction: column;
+            align-items: center;
+            padding-top: 3rem;
+            z-index: 4999; /* Just below the header */
+            border-top: 1px solid var(--glass-border);
+            overflow-y: auto; /* Allow scrolling if screen is short */
+        }
+
+        .mobile-link {
+            color: var(--text-main);
+            font-size: 1.5rem;
+            text-decoration: none;
+            margin: 1.5rem 0;
+            font-weight: 600;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+        
+        .mobile-link:nth-child(1) { animation-delay: 0.1s; }
+        .mobile-link:nth-child(2) { animation-delay: 0.2s; }
+        .mobile-link:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* --- MEDIA QUERIES --- */
         @media (max-width: 767px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 70px; left: 0;
-                width: 100%;
-                height: calc(100vh - 70px);
-                background: var(--bg-dark);
-                flex-direction: column;
-                justify-content: flex-start;
-                padding-top: 2rem;
-                border-top: 1px solid var(--glass-border);
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            }
-
+            .desktop-nav { display: none; }
             .hamburger { display: block; }
-
-            nav.mobile-open .nav-links {
-                display: flex;
-                animation: slideDown 0.3s ease-out;
-            }
-
-            @keyframes slideDown {
-                from { opacity: 0; transform: translateY(-20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
+            .mobile-menu { display: none; } /* Logic handled by JS */
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-menu { display: none !important; }
         }
 
-        /* --- LAYOUT & SECTIONS --- */
-        main { padding-top: 70px; min-height: 100vh; }
+        /* --- CONTENT SECTIONS --- */
+        main {
+            padding-top: calc(var(--nav-height) + 2rem);
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
 
         section {
             display: none;
             padding: 2rem 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
-            animation: fadeIn 0.4s ease;
+            animation: slideUp 0.4s ease;
         }
 
         section.active-section { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+        /* --- TYPOGRAPHY & COMPONENTS --- */
         h2 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
@@ -167,10 +181,9 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
+        
         p.subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 1rem; }
 
-        /* --- GLASS COMPONENT --- */
         .glass-panel {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -180,118 +193,56 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
-        /* --- HOME / WEATHER --- */
+        /* --- WEATHER SECTION --- */
         .hero-search { text-align: center; margin-bottom: 3rem; padding: 2rem 0; }
-
         .hero-title {
-            font-size: 2.5rem;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
+            font-size: 2.5rem; line-height: 1.1; margin-bottom: 1.5rem;
             background: linear-gradient(to right, #38bdf8, #e879f9);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
         .search-wrapper { position: relative; max-width: 600px; margin: 0 auto; width: 100%; }
-
         .search-input {
-            width: 100%; padding: 1rem 1.2rem;
-            border-radius: 12px;
+            width: 100%; padding: 1rem 1.2rem; border-radius: 12px;
             border: 1px solid var(--glass-border);
-            background: rgba(15, 23, 42, 0.8);
-            color: white;
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            margin-bottom: 10px;
-            transition: all 0.3s;
+            background: rgba(15, 23, 42, 0.8); color: white;
+            font-size: 1rem; outline: none; margin-bottom: 10px; transition: 0.3s;
         }
-
         .search-input:focus { border-color: var(--primary); }
-
+        
         .search-btn {
-            width: 100%; padding: 1rem;
-            border-radius: 12px;
-            border: none;
-            background: var(--gradient);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
+            width: 100%; padding: 1rem; border-radius: 12px;
+            border: none; background: var(--gradient); color: white;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
         }
-
         .search-btn:hover { opacity: 0.9; }
 
         .destinations-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-top: 2rem;
+            display: grid; grid-template-columns: 1fr;
+            gap: 1.5rem; margin-top: 2rem;
         }
-
-        .weather-card { text-align: center; position: relative; }
         
+        .weather-card { text-align: center; position: relative; }
         .weather-card::before {
-            content: ''; position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--gradient);
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--gradient);
         }
-
         .city-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
         .weather-icon-lg { font-size: 3rem; margin: 0.5rem 0; }
         .temp-lg { font-size: 2.5rem; font-weight: 300; }
-        .weather-detail { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
 
         /* --- FLIGHTS SECTION --- */
-        .flights-header {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 1rem;
-        }
-
+        .flights-header { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; }
         .flight-tabs button {
-            background: none; border: none;
-            color: var(--text-muted);
-            padding: 8px 16px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
+            background: none; border: none; color: var(--text-muted);
+            padding: 8px 16px; font-size: 1rem; font-weight: 600; cursor: pointer;
         }
-
         .flight-tabs button.active { color: var(--primary); }
 
-        .flight-table-container {
-            overflow-x: auto;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-        }
-
+        .flight-table-container { overflow-x: auto; border-radius: 16px; border: 1px solid var(--glass-border); }
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
-
-        th {
-            padding: 1rem; color: var(--text-muted);
-            font-size: 0.8rem; text-transform: uppercase;
-            background: rgba(15, 23, 42, 0.9);
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--glass-border);
-            color: var(--text-main);
-            font-size: 0.9rem;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        
+        th { padding: 1rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; background: rgba(15, 23, 42, 0.9); }
+        td { padding: 1rem; border-bottom: 1px solid var(--glass-border); color: var(--text-main); font-size: 0.9rem; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         .status-ontime { background: rgba(52, 211, 153, 0.15); color: var(--success); }
         .status-delayed { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
         .status-boarding { background: rgba(56, 189, 248, 0.15); color: var(--primary); }
@@ -299,73 +250,33 @@
         /* --- VAULT SECTION --- */
         #vault-login { max-width: 100%; margin: 4rem auto; text-align: center; border-top: 4px solid var(--primary); }
         #vault-content { display: none; }
-
-        .task-input-area {
-            display: flex; flex-direction: column;
-            gap: 10px; margin-bottom: 2rem;
-        }
-
-        .task-input-area input {
-            width: 100%; background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            padding: 1rem; border-radius: 8px;
-            color: white; font-family: inherit;
-        }
-
-        .btn-primary {
-            background: var(--gradient); border: none;
-            padding: 1rem; border-radius: 8px;
-            color: white; font-weight: 600; cursor: pointer;
-        }
-
+        .task-input-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
+        .task-input-area input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 1rem; border-radius: 8px; color: white; font-family: inherit; }
+        .btn-primary { background: var(--gradient); border: none; padding: 1rem; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
         .task-list { list-style: none; }
-
-        .task-item {
-            background: rgba(255,255,255,0.03);
-            margin-bottom: 0.8rem;
-            padding: 1rem;
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 10px;
-        }
-
+        .task-item { background: rgba(255,255,255,0.03); margin-bottom: 0.8rem; padding: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
         .task-left { display: flex; align-items: center; gap: 10px; flex: 1; }
-
-        .checkbox {
-            width: 20px; height: 20px;
-            accent-color: var(--primary); cursor: pointer;
-        }
-
-        .delete-btn {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; font-size: 0.9rem;
-        }
-        .delete-btn:hover { color: var(--danger); }
+        .checkbox { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; }
 
         /* Toast */
         .toast {
             position: fixed; bottom: 20px; right: 20px; left: 20px;
             background: var(--bg-dark); border: 1px solid var(--primary);
             color: var(--primary); padding: 1rem; border-radius: 8px;
-            transform: translateY(100px); opacity: 0;
-            transition: all 0.3s; z-index: 3000;
-            font-weight: 600; text-align: center;
+            transform: translateY(100px); opacity: 0; transition: all 0.3s;
+            z-index: 6000; font-weight: 600; text-align: center;
         }
         .toast.show { transform: translateY(0); opacity: 1; }
 
-        /* --- DESKTOP OVERRIDES --- */
+        /* Desktop Specifics */
         @media (min-width: 768px) {
-            nav { padding: 1.2rem 3rem; }
+            nav { padding: 0 3rem; }
             section { padding: 3rem; }
             .hero-title { font-size: 4rem; }
-            .nav-links { display: flex; }
-            .hamburger { display: none; }
             .search-wrapper { max-width: 600px; }
             .search-input { margin-bottom: 0; }
-            .search-btn {
-                position: absolute; right: 5px; top: 5px; bottom: 5px;
-                width: auto; padding: 0 2rem; border-radius: 40px;
-            }
+            .search-btn { position: absolute; right: 5px; top: 5px; bottom: 5px; width: auto; padding: 0 2rem; border-radius: 40px; }
             .destinations-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
             .flights-header { flex-direction: row; justify-content: space-between; align-items: flex-end; }
             .task-input-area { flex-direction: row; }
@@ -377,16 +288,27 @@
 
     <div class="bg-mesh"></div>
 
-    <!-- Navigation -->
-    <nav id="main-nav">
+    <!-- Main Navigation Bar (Always Fixed) -->
+    <nav class="main-nav">
         <div class="logo" onclick="switchTab('home')">BRIDGE</div>
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-        <div class="nav-links">
-            <a class="nav-item active" onclick="handleNavClick('home')">Global Weather</a>
-            <a class="nav-item" onclick="handleNavClick('flights')">Changi Flights</a>
-            <a class="nav-item" onclick="handleNavClick('vault')">Staff Vault</a>
+        
+        <!-- Desktop Links -->
+        <div class="desktop-nav">
+            <a class="nav-link active" onclick="switchTab('home')">Global Weather</a>
+            <a class="nav-link" onclick="switchTab('flights')">Changi Flights</a>
+            <a class="nav-link" onclick="switchTab('vault')">Staff Vault</a>
         </div>
+
+        <!-- Mobile Hamburger Button -->
+        <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
     </nav>
+
+    <!-- Mobile Menu Overlay (Separate from Nav) -->
+    <div id="mobile-menu" class="mobile-menu">
+        <a class="mobile-link" onclick="handleMobileClick('home')">Global Weather</a>
+        <a class="mobile-link" onclick="handleMobileClick('flights')">Changi Flights</a>
+        <a class="mobile-link" onclick="handleMobileClick('vault')">Staff Vault</a>
+    </div>
 
     <main>
         <!-- HOME / WEATHER SECTION -->
@@ -443,7 +365,7 @@
                             </tr>
                         </thead>
                         <tbody id="flights-body">
-                            <!-- Filled by JS -->
+                            <!-- Populated by JS -->
                         </tbody>
                     </table>
                 </div>
@@ -487,31 +409,39 @@
         const API_KEY = '1f55ca2c5bbd84e2f56a7fd3a2b91390';
         const AIRPORT_CODE = 'SIN';
 
-        // --- NAVIGATION ---
-        function handleNavClick(sectionId) {
-            switchTab(sectionId);
-            const nav = document.getElementById('main-nav');
-            if (nav.classList.contains('mobile-open')) {
-                nav.classList.remove('mobile-open');
-            }
-        }
-
-        function toggleMenu() {
-            const nav = document.getElementById('main-nav');
-            nav.classList.toggle('mobile-open');
-        }
-
+        // --- NAVIGATION LOGIC ---
         function switchTab(id) {
+            // 1. Update Section Visibility
             document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
             document.getElementById(id).classList.add('active-section');
             
-            const navs = ['home', 'flights', 'vault'];
-            const navIndex = navs.indexOf(id);
-            if(navIndex >= 0) {
-                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            // 2. Update Nav Highlight (Desktop)
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            const links = ['home', 'flights', 'vault'];
+            const idx = links.indexOf(id);
+            if(idx >= 0) document.querySelectorAll('.nav-link')[idx].classList.add('active');
+
+            // 3. Close Mobile Menu if open
+            const menu = document.getElementById('mobile-menu');
+            if (window.getComputedStyle(menu).display === 'flex') {
+                menu.style.display = 'none';
             }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            // Direct style toggle is reliable
+            if (menu.style.display === 'flex') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'flex';
+            }
+        }
+
+        function handleMobileClick(id) {
+            switchTab(id);
+            // Explicitly hide menu for good measure
+            document.getElementById('mobile-menu').style.display = 'none';
         }
 
         // --- WEATHER SYSTEM (Open-Meteo) ---
@@ -585,60 +515,33 @@
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading live data...</td></tr>';
 
             let apiUrl = `https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&limit=10`;
-            
-            if (type === 'arrivals') {
-                apiUrl += `&arr_iata_code=${AIRPORT_CODE}`;
-            } else {
-                apiUrl += `&dep_iata_code=${AIRPORT_CODE}`;
-            }
+            if (type === 'arrivals') { apiUrl += `&arr_iata_code=${AIRPORT_CODE}`; }
+            else { apiUrl += `&dep_iata_code=${AIRPORT_CODE}`; }
 
             try {
                 const response = await fetch(apiUrl);
                 const data = await response.json();
-
-                // Check for API Errors (Quota, Invalid Key)
                 if (data.error) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--danger);">API Error: ${data.error.message}</td></tr>`;
                     return;
                 }
-
                 if (!data.data || data.data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No flights found at the moment.</td></tr>';
                     return;
                 }
 
-                // Render Data
                 tbody.innerHTML = '';
                 data.data.forEach(f => {
-                    // Filter out empty/deleted flights if necessary
-                    // Aviationstack returns specific statuses. We map them to UI styles.
-                    
                     const airline = f.airline ? f.airline.name : 'Unknown';
                     const flightCode = f.flight ? f.flight.iata : '---';
-                    
-                    // Get Origin or Destination based on type
-                    const airportData = (type === 'arrivals') 
-                        ? f.departure?.airport 
-                        : f.arrival?.airport;
-                    
+                    const airportData = (type === 'arrivals') ? f.departure?.airport : f.arrival?.airport;
                     const airportName = airportData ? airportData.iata_code : '---';
-
-                    // Time
-                    const timeData = (type === 'arrivals')
-                        ? f.departure?.scheduled
-                        : f.arrival?.scheduled;
-                    
-                    // Extract HH:MM from ISO string
+                    const timeData = (type === 'arrivals') ? f.departure?.scheduled : f.arrival?.scheduled;
                     const timeDisplay = timeData ? timeData.slice(11, 16) : '--:--';
-
-                    // Gate
-                    const gateData = (type === 'arrivals')
-                        ? f.arrival?.gate
-                        : f.departure?.gate;
+                    const gateData = (type === 'arrivals') ? f.arrival?.gate : f.departure?.gate;
                     const gateDisplay = gateData ? gateData : '--';
-
-                    // Status
                     const status = f.flight_status ? f.flight_status.toUpperCase() : 'UNKNOWN';
+                    
                     let statusClass = 'status-ontime';
                     if (status.includes('DELAYED') || status.includes('CANCELLED')) statusClass = 'status-delayed';
                     if (status.includes('ACTIVE') || status.includes('BOARDING')) statusClass = 'status-boarding';
@@ -655,7 +558,6 @@
                     `;
                     tbody.innerHTML += row;
                 });
-
             } catch (error) {
                 console.error('Flight API Error:', error);
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Failed to fetch flight data.</td></tr>';
@@ -663,12 +565,9 @@
         }
 
         function filterFlights(type) {
-            // Update UI Tabs
             const btns = document.querySelectorAll('.flight-tabs button');
             btns.forEach(b => b.classList.remove('active'));
             btns[type === 'arrivals' ? 0 : 1].classList.add('active');
-            
-            // Fetch Data
             fetchFlights(type);
         }
 
@@ -719,9 +618,7 @@
             }
         }
 
-        function saveTasks() {
-            localStorage.setItem('bridge_tasks', JSON.stringify(tasks));
-        }
+        function saveTasks() { localStorage.setItem('bridge_tasks', JSON.stringify(tasks)); }
 
         function handleLogin(e) {
             e.preventDefault();
@@ -751,7 +648,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadFeaturedWeather();
-            fetchFlights('arrivals'); // Initial Load
+            fetchFlights('arrivals');
         });
 
     </script>
